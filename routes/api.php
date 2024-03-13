@@ -81,6 +81,10 @@ Route::group(['middleware' => ['api'],'prefix' => 'auth','namespace'=>'Admin'], 
 });
 
 Route::group(['middleware' => ['api',],'prefix' => 'auth','namespace'=>'User'], function () {
+
+    Route::get('/user', [UserController::class, 'allUsers']);
+
+
     Route::get('/uservoutcher', [UserVoutcherController::class, 'index']);
     Route::get('/uservoutcher/{id}', [UserVoutcherController::class, 'show']);
 
