@@ -56,18 +56,12 @@ class VoutcherPlanController extends Controller
                 return response()->json(['errors' => $validator->errors()], 422);
             }
 
-            // Handle image upload
-            if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $imageName = time() . '.' . $image->getClientOriginalExtension();
-                $imagePath = '/img/voucherPlan_image/' . $imageName; // Set your image upload directory
-                $image->move(public_path('img/voucherPlan_image/'), $imageName); // Move image to public folder
+            // Check if a voucher plan with the given ID exists
+            $voucherPlan = VoucherPlan::find($request->id);
 
-                // return response()->json($imagePath);
-                
-                // Create voutcher plan
-                $voutcherPlan = Voutcher_plan::create([
-                    'id' => $request->id,
+            if ($voucherPlan) {
+                // Update existing voucher plan
+                $voucherPlan->update([
                     'name' => $request->name,
                     'number_of_points' => $request->number_of_points,
                     'order_number' => $request->order_number,
@@ -75,16 +69,38 @@ class VoutcherPlanController extends Controller
                     'number_of_days_to_expire' => $request->number_of_days_to_expire,
                     'created_at' => $request->created_at,
                     'updated_at' => $request->updated_at,
-                    'image' => isset($imagePath) ? $imagePath : null,
+                    'image' => $imagePath ?? null,
                 ]);
-
-                // Optionally, you can return a response indicating success
-                return response()->json(['message' => 'Voucher plan created successfully', 'company_detail' => $voutcherPlan], 201);
+                
+                return response()->json(['message' => 'Voucher plan updated successfully', 'voucher plan' => $voucherPlan], 200);
             } else {
-                return response()->json(['message' => 'Failed to create voucher without image: '], 500);
+                // Handle image upload
+                if ($request->hasFile('image')) {
+                    $image = $request->file('image');
+                    $imageName = time() . '.' . $image->getClientOriginalExtension();
+                    $imagePath = '/img/voucherPlan_image/' . $imageName; // Set your image upload directory
+                    $image->move(public_path('img/voucherPlan_image/'), $imageName); // Move image to public folder
+                    
+                    // Create new voucher plan
+                    $voucherPlan = VoucherPlan::create([
+                        'id' => $request->id,
+                        'name' => $request->name,
+                        'number_of_points' => $request->number_of_points,
+                        'order_number' => $request->order_number,
+                        'value_in_pounds' => $request->value_in_pounds,
+                        'number_of_days_to_expire' => $request->number_of_days_to_expire,
+                        'created_at' => $request->created_at,
+                        'updated_at' => $request->updated_at,
+                        'image' => $imagePath,
+                    ]);
+                    
+                    return response()->json(['message' => 'Voucher plan created successfully', 'voucher plan' => $voucherPlan], 201);
+                } else {
+                    return response()->json(['message' => 'Failed to create voucher without image'], 500);
+                }
             }
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to create voucher plan: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed to process the request: ' . $e->getMessage()], 500);
         }
     }
 
