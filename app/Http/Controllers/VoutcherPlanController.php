@@ -60,19 +60,38 @@ class VoutcherPlanController extends Controller
             $voucherPlan = VoucherPlan::find($request->id);
 
             if ($voucherPlan) {
-                // Update existing voucher plan
-                $voucherPlan->update([
-                    'name' => $request->name,
-                    'number_of_points' => $request->number_of_points,
-                    'order_number' => $request->order_number,
-                    'value_in_pounds' => $request->value_in_pounds,
-                    'number_of_days_to_expire' => $request->number_of_days_to_expire,
-                    'created_at' => $request->created_at,
-                    'updated_at' => $request->updated_at,
-                    'image' => $imagePath ?? null,
-                ]);
-                
-                return response()->json(['message' => 'Voucher plan updated successfully', 'voucher plan' => $voucherPlan], 200);
+
+                // Update voucher plan fields
+                    $voucherPlan->name = $request->name;
+                    $voucherPlan->number_of_points = $request->number_of_points;
+                    $voucherPlan->order_number = $request->order_number;
+                    $voucherPlan->value_in_pounds = $request->value_in_pounds;
+                    $voucherPlan->number_of_days_to_expire = $request->number_of_days_to_expire;
+                    $voucherPlan->status = 1;
+                    $voucherPlan->created_at = $request->created_at;
+                    $voucherPlan->updated_at = $request->updated_at;
+
+                    // Handle image upload and deletion of old image
+                    if ($request->hasFile('image')) {
+                        $image = $request->file('image');
+                        $imageName = time() . '.' . $image->getClientOriginalExtension();
+                        $imagePath = '/img/voucherPlan_image/' . $imageName; // Set your image upload directory
+                        $image->move(public_path('img/voucherPlan_image/'), $imageName); // Move image to public folder
+                        
+                        // Delete the old image if it exists
+                        if ($voucherPlan->image && file_exists(public_path($voucherPlan->image))) {
+                            unlink(public_path($voucherPlan->image));
+                        }
+
+                        // Update the image path in the database
+                        $voucherPlan->image = $imagePath;
+                    }
+
+                    // Save the updated voucher plan
+                    $voucherPlan->save();
+
+                    // Optionally, you can return a response indicating success
+                    return response()->json(['message' => 'Voucher plan updated successfully', 'voucher_plan' => $voucherPlan], 200);
             } else {
                 // Handle image upload
                 if ($request->hasFile('image')) {
