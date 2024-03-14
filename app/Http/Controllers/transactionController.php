@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class transactionController extends Controller
 {
@@ -282,4 +283,72 @@ class transactionController extends Controller
             return response()->json(['message' => 'Failed', 'error' => $e->getMessage()], 500);
         }
     }
+
+
+    public function reserveBulk(Request $request)
+    {
+        // Validate incoming request data
+        $validator = Validator::make($request->all(), [
+            'transactions' => 'required|array',
+            'transactions.*.transaction_qr_code' => 'required|string|unique:transactions,transaction_qr_code',
+            'transactions.*.transaction_date' => 'required|date',
+            'transactions.*.transaction_number' => 'required|unique:transactions,transaction_number,NULL,id,branch_id,' . $request->input('branch_id'),
+            'transactions.*.branch_id' => 'required|integer|exists:branchs,id',
+            'transactions.*.number_of_points' => 'required|integer',
+            'transactions.*.record_date' => 'nullable|date',
+            'transactions.*.customer_id' => 'nullable|integer|exists:users,id',
+            'transactions.*.created_at' => 'required|date_format:Y-m-d H:i:s',
+            'transactions.*.updated_at' => 'required|date_format:Y-m-d H:i:s',
+        ]);
+        // Validate the incoming request
+        // $request->validate([
+        //     'transactions' => 'required|array',
+        //     'transactions.*' => $transactionValidationRules,
+        // ]);
+        // Check if validation fails for the current transaction
+        if ($validator->fails()) {
+            // Handle validation failure as per your requirement
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+
+        $reservedTransactions = [];
+        $numStoredTransactions = 0;
+
+        // Process each transaction in the request
+        foreach ($request->input('transactions') as $transactionData) {
+            
+
+            
+
+            // Create a new transaction instance
+            $transaction = new Transaction();
+            
+            // Set transaction data
+            $transaction->transaction_qr_code = $transactionData['transaction_qr_code'];
+            $transaction->transaction_date = $transactionData['transaction_date'];
+            $transaction->transaction_number = $transactionData['transaction_number'];
+            $transaction->branch_id = $transactionData['branch_id'];
+            $transaction->number_of_points = $transactionData['number_of_points'];
+            $transaction->record_date = $transactionData['record_date'];
+            $transaction->customer_id = $transactionData['customer_id'];
+            $transaction->created_at = $transactionData['created_at'];
+            $transaction->updated_at = $transactionData['updated_at'];
+            // Set other properties as needed
+            
+            // Save the transaction
+            $transaction->save();
+            
+            // Store the reservation
+            $reservedTransactions[] = $transaction;
+            
+            // Increment the count of stored transactions
+            $numStoredTransactions++;
+        }
+
+        return response()->json([
+            'reserved_transactions' => $reservedTransactions,
+            'num_stored_transactions' => $numStoredTransactions
+        ]);
+    }
+
 }

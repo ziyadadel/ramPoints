@@ -25,7 +25,6 @@ class Transaction extends Model
         'number_of_points',
         'record_date',
         'customer_id',
-        'image',
         'created_at',
         'updated_at',
     ];

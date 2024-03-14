@@ -89,4 +89,5 @@ Route::group(['middleware' => ['api',],'prefix' => 'auth','namespace'=>'User'], 
     Route::get('/uservoutcher/{id}', [UserVoutcherController::class, 'show']);
 
     Route::post('/trans/updateTransaction', [TransactionController::class, 'updateTransaction']);
+    Route::post('/trans/bulktrans', [TransactionController::class, 'reserveBulk']);
 });
