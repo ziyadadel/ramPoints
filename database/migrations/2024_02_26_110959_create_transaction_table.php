@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->string('transaction_qr_code', 300)->unique();
-            $table->timestamp('transaction_date');
+            $table->timestamp('transaction_date')->useCurrent();
             $table->integer('transaction_number');
             $table->unsignedBigInteger('branch_id');
             $table->integer('number_of_points')->default(0);
-            $table->timestamp('record_date')->nullable();
+            $table->timestamp('record_date')->nullable()->useCurrent();
             $table->unsignedBigInteger('customer_id')->nullable();
             $table->timestamps();
 

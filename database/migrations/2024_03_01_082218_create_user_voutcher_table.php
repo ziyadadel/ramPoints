@@ -16,10 +16,11 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('voutcher_plan_id');
             $table->decimal('value_in_pounds', 6, 2);
-            $table->timestamp('expiration_date');
+            $table->timestamp('expiration_date')->useCurrent();
             $table->boolean('status')->default(1);
-            $table->timestamp('sold_date')->nullable();
+            $table->timestamp('sold_date')->nullable()->useCurrent();
             $table->string('num_of_point');
+            $table->string('voutcher_plan_name')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
