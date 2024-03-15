@@ -43,6 +43,7 @@ class VoutcherPlanController extends Controller
             $validator = Validator::make($request->all(), [
                 'id' => 'required|integer|unique:voutcher_plan,id',
                 'name' => 'required|string',
+                'status' => 'required|integer',
                 'number_of_points' => 'required|integer',
                 'order_number' => 'required|integer',
                 'value_in_pounds' => 'required|numeric|between:0,9999.99',
@@ -57,7 +58,7 @@ class VoutcherPlanController extends Controller
             }
 
             // Check if a voucher plan with the given ID exists
-            $voucherPlan = VoucherPlan::find($request->id);
+            $voucherPlan = Voutcher_plan::find($request->id);
 
             if ($voucherPlan) {
 
@@ -67,7 +68,7 @@ class VoutcherPlanController extends Controller
                     $voucherPlan->order_number = $request->order_number;
                     $voucherPlan->value_in_pounds = $request->value_in_pounds;
                     $voucherPlan->number_of_days_to_expire = $request->number_of_days_to_expire;
-                    $voucherPlan->status = 1;
+                    $voucherPlan->status = $request->status;
                     $voucherPlan->created_at = $request->created_at;
                     $voucherPlan->updated_at = $request->updated_at;
 
@@ -101,9 +102,10 @@ class VoutcherPlanController extends Controller
                     $image->move(public_path('img/voucherPlan_image/'), $imageName); // Move image to public folder
                     
                     // Create new voucher plan
-                    $voucherPlan = VoucherPlan::create([
+                    $voucherPlan = Voutcher_plan::create([
                         'id' => $request->id,
                         'name' => $request->name,
+                        'status' => $request->status,
                         'number_of_points' => $request->number_of_points,
                         'order_number' => $request->order_number,
                         'value_in_pounds' => $request->value_in_pounds,
@@ -161,6 +163,7 @@ class VoutcherPlanController extends Controller
             // Validate incoming request data
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string',
+                'status' => 'required|integer',
                 'number_of_points' => 'required|integer',
                 'order_number' => 'required|integer',
                 'value_in_pounds' => 'required|numeric|between:0,9999.99',
@@ -180,7 +183,7 @@ class VoutcherPlanController extends Controller
             $voucherPlan->order_number = $request->order_number;
             $voucherPlan->value_in_pounds = $request->value_in_pounds;
             $voucherPlan->number_of_days_to_expire = $request->number_of_days_to_expire;
-            $voucherPlan->status = 1;
+            $voucherPlan->status = $request->status;
             $voucherPlan->created_at = $request->created_at;
             $voucherPlan->updated_at = $request->updated_at;
 

@@ -62,11 +62,26 @@ class OffersController extends Controller
         // Construct the file path for storage in the database
         $filePath = $destinationDirectory . '/' . $filename;
 
-        // Create a new offer instance
-        $offer = Offers::create([
-            'file_path' => $filePath,
-            'type' => $validatedData['type'],
-        ]);
+        // Find old offer record if it exists
+        $oldOffer = Offers::where('type', $validatedData['type'])->first();
+
+        // If old offer exists, delete its associated file
+        if ($oldOffer && file_exists(public_path($oldOffer->file_path))) {
+            unlink(public_path($oldOffer->file_path));
+        }
+
+        // Create a new offer instance or update the existing one
+        if ($oldOffer) {
+            $oldOffer->update([
+                'file_path' => $filePath,
+            ]);
+            $offer = $oldOffer;
+        } else {
+            $offer = Offers::create([
+                'file_path' => $filePath,
+                'type' => $validatedData['type'],
+            ]);
+        }
 
         // Optionally, you can return a response indicating success or failure
         if ($offer) {
@@ -93,6 +108,7 @@ class OffersController extends Controller
     /**
      * Update the specified resource in storage.
      */
+
     public function update(Request $request, $id)
     {
         // Find the offer by ID
@@ -133,9 +149,12 @@ class OffersController extends Controller
             // Construct the file path for storage in the database
             $newFilePath = $destinationDirectory . '/' . $filename;
 
-            // Delete the old file if it exists
-            if ($offer->file_path) {
-                Storage::disk('public')->delete($offer->file_path);
+            // Find old offer record if it exists
+            $oldOffer = Offers::where('type', $validatedData['type'])->first();
+
+            // If old offer exists, delete its associated file
+            if ($oldOffer && file_exists(public_path($oldOffer->file_path))) {
+                unlink(public_path($oldOffer->file_path));
             }
 
             // Update the file path in the offer
@@ -151,6 +170,7 @@ class OffersController extends Controller
         // Optionally, you can return a response indicating success or failure
         return response()->json(['message' => 'Offer updated successfully', 'offer' => $offer], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
