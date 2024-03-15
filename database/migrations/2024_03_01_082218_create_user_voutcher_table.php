@@ -17,9 +17,9 @@ return new class extends Migration
             $table->unsignedBigInteger('voutcher_plan_id');
             $table->decimal('value_in_pounds', 6, 2);
             $table->timestamp('expiration_date')->useCurrent();
-            $table->boolean('status')->default(1);
-            $table->timestamp('sold_date')->nullable()->useCurrent();
-            $table->string('num_of_point');
+            $table->boolean('status')->default(0);
+            $table->timestamp('sold_date')->nullable()->useCurrent()->default(null);
+            $table->integer('num_of_point');
             $table->string('voutcher_plan_name')->nullable();
             $table->timestamps();
 

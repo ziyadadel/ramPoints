@@ -231,4 +231,27 @@ class UserVoutcherController extends Controller
         }
     }
 
+    public function updateSoldDate(Request $request, $id)
+    {
+        // Find the user voucher by its id
+        $userVoucher = User_voutcher::find($id);
+
+        // Check if the user voucher exists
+        if (!$userVoucher) {
+            return response()->json(['message' => 'User voucher not found'], 404);
+        }
+
+        // Validate incoming request data
+        $validatedData = $request->validate([
+            'sold_date' => 'required|date',
+            'status' => 'required|integer',
+        ]);
+
+        // Update the user voucher with validated data
+        $userVoucher->update($validatedData);
+
+        // Optionally, you can return a response indicating success or failure
+        return response()->json(['message' => 'User voucher updated successfully', 'user_voucher' => $userVoucher], 200);
+    }
+
 }
