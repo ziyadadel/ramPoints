@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\User_voutcher;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
@@ -52,9 +53,26 @@ class UserVoutcherController extends Controller
                 // Handle validation failure as per your requirement
                 return response()->json(['error' => $validator->errors()], 400);
             }
+
+            $user = User::where('id', $request->input('user_id'))->first();
+
+            if($user->number_of_points >= $request->num_of_point)
+            {
+                $user->number_of_points =  $user->number_of_points - $request->num_of_point;
+
+                // Save the updated user
+                $user->save();
+
+                $userVoucher = User_voutcher::create($validator->validated());
+            }else{
+                return response()->json(['message' => 'النقاط أكبر من المسموح'], 500);
+            }
     
             // Create user voucher instance
-            $userVoucher = User_voutcher::create($validator->validated());
+
+
+                    
+
     
             // Optionally, you can return a response indicating success or failure
             if ($userVoucher) {

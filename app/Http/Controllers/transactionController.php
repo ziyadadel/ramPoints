@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -271,6 +272,13 @@ class transactionController extends Controller
         
                     // Save the updated transaction
                     $transaction->save();
+                    
+                    $user = User::where('id', $request->input('customer_id'))->first();
+                    
+                    $user->number_of_points = $transaction->number_of_points + $user->number_of_points;
+
+                    // Save the updated user
+                    $user->save();
         
                     // Return a response indicating success
                     return response()->json(['message' => 'تم إضافة النقاط ', 'transaction' => $transaction], 200);
