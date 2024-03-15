@@ -17,7 +17,7 @@ class User_voutcher extends Model
      * @var array
      */
     protected $fillable = [
-        'num_of_point','user_id', 'voucher_plan_id', 'value_in_pounds', 'expiration_date','status','sold_date'
+        'num_of_point','user_id', 'voutcher_plan_id', 'value_in_pounds', 'expiration_date','status','sold_date','status','voutcher_plan_name'
     ];
 
     /**
@@ -31,7 +31,7 @@ class User_voutcher extends Model
     /**
      * Get the voucher plan associated with the voucher.
      */
-    public function voucherPlan()
+    public function voutcher_plan()
     {
         return $this->belongsTo(Voutcher_plan::class);
     }

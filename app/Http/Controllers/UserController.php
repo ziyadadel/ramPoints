@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Hash;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -93,5 +94,30 @@ class UserController extends Controller
         $users = User::latest('updated_at')->get();
 
         return response()->json(['user' => $users]);
+    }
+
+    public function searchByDate(Request $request)
+    {
+        try {
+            // Validate incoming request data
+            $validator = Validator::make($request->all(), [
+                'date' => 'required|date', // Validate record_date
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+
+            // Convert record_date to Carbon instance
+            $recordDate = Carbon::parse($request->date);
+
+            // Query transactions where record_date is on or after the provided record_date
+            $users = User::where('updated_at', '>=', $recordDate->toDateTimeString())->get();
+
+            return response()->json(['users' => $users], 200);
+        } catch (\Exception $e) {
+            // Return a response indicating failure
+            return response()->json(['message' => 'Failed to search transactions by record date', 'error' => $e->getMessage()], 500);
+        }
     }
 }

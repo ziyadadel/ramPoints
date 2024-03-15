@@ -43,20 +43,20 @@ Route::group(['middleware' => ['api'],'prefix' => 'auth','namespace'=>'Admin'], 
     Route::post('/trans/searchByRecordDate', [TransactionController::class, 'searchByRecordDate']);
     Route::post('/trans/searchByAll', [TransactionController::class, 'searchByAll']);
     Route::get('/trans/currentDate', [TransactionController::class, 'currentDate']);
-
-
+    
+    
     Route::get('/branch', [branchController::class, 'index']);
     Route::get('/branch/{id}', [branchController::class, 'show']);
     Route::post('/branch', [branchController::class, 'store']);
     Route::put('/branch/{id}', [branchController::class, 'update']);
     Route::delete('/branch/{id}', [branchController::class, 'destroy']);
-
+    
     Route::get('/voutcherplan', [VoutcherPlanController::class, 'index']);
     Route::get('/voutcherplan/{id}', [VoutcherPlanController::class, 'show']);
     Route::post('/voutcherplan', [VoutcherPlanController::class, 'store']);
     Route::put('/voutcherplan/{id}', [VoutcherPlanController::class, 'update']);
     Route::delete('/voutcherplan/{id}', [VoutcherPlanController::class, 'destroy']);
-
+    
     Route::get('/uservoutcher', [UserVoutcherController::class, 'index']);
     Route::get('/uservoutcher/{id}', [UserVoutcherController::class, 'show']);
     Route::post('/uservoutcher', [UserVoutcherController::class, 'store']);
@@ -64,7 +64,7 @@ Route::group(['middleware' => ['api'],'prefix' => 'auth','namespace'=>'Admin'], 
     Route::delete('/uservoutcher/{id}', [UserVoutcherController::class, 'destroy']);
     Route::post('/updateStatusAndSoldDate/{id}', [UserVoutcherController::class, 'updateStatusAndSoldDate']);
     Route::post('/searchByCustomerPhoneNumber', [UserVoutcherController::class, 'searchByCustomerPhoneNumber']);
-
+    
     Route::get('/companydetails', [CompanyDetailsController::class, 'index']);
     Route::post('/companydetails', [CompanyDetailsController::class, 'store']);
     Route::get('/companydetails/{id}', [CompanyDetailsController::class, 'show']);
@@ -81,13 +81,15 @@ Route::group(['middleware' => ['api'],'prefix' => 'auth','namespace'=>'Admin'], 
 });
 
 Route::group(['middleware' => ['api',],'prefix' => 'auth','namespace'=>'User'], function () {
-
+    
     Route::get('/user', [UserController::class, 'allUsers']);
-
-
+    Route::post('/user/searchByDate', [UserController::class, 'searchByDate']);
+    Route::post('/uservoutcher/searchByDate', [UserVoutcherController::class, 'searchByDate']);
+    
+    
     Route::get('/uservoutcher', [UserVoutcherController::class, 'index']);
     Route::get('/uservoutcher/{id}', [UserVoutcherController::class, 'show']);
-
+    
     Route::post('/trans/updateTransaction', [TransactionController::class, 'updateTransaction']);
     Route::post('/trans/bulktrans', [TransactionController::class, 'reserveBulk']);
 });

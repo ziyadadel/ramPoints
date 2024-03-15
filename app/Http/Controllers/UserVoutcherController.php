@@ -16,7 +16,7 @@ class UserVoutcherController extends Controller
      */
     public function index()
     {
-        $userVouchers = User_voutcher::with('user', 'voucherPlan')->get()->sortByDesc('updated_at');
+        $userVouchers = User_voutcher::with('user', 'voutcher_plan')->get()->sortByDesc('updated_at');
 
         $message = 'All User Vouchers';
         $statusCode = Response::HTTP_OK;
@@ -37,22 +37,37 @@ class UserVoutcherController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate incoming request data
-        $validatedData = $request->validate([
-            'user_id' => 'required|integer||exists:users,id',
-            'voucher_plan_id' => 'required|integer||exists:voutcher_plan,id',
-            'value_in_pounds' => 'required|numeric|between:0,9999.99',
-            'expiration_date' => 'required|date',
-        ]);
+        try {
+            $validator = Validator::make($request->all(),[
+                'user_id' => 'required|integer|exists:users,id',
+                'voutcher_plan_id' => 'required|integer|exists:voutcher_plan,id',
+                'value_in_pounds' => 'required|numeric|between:0,9999.99',
+                'expiration_date' => 'required|date',
+                'num_of_point' => 'required|integer',
+                'status' => 'required|integer',
+                'voutcher_plan_name' => 'required|string',
+            ]);
 
-        // Create a new user voucher instance
-        $userVoucher = User_voutcher::create($validatedData);
-
-        // Optionally, you can return a response indicating success or failure
-        if ($userVoucher) {
-            return response()->json(['message' => 'User voucher created successfully', 'user_voucher' => $userVoucher], 201);
-        } else {
-            return response()->json(['message' => 'Failed to create user voucher'], 500);
+            if ($validator->fails()) {
+                // Handle validation failure as per your requirement
+                return response()->json(['error' => $validator->errors()], 400);
+            }
+    
+            // Create user voucher instance
+            $userVoucher = User_voutcher::create($validator->validated());
+    
+            // Optionally, you can return a response indicating success or failure
+            if ($userVoucher) {
+                return response()->json(['message' => 'User voucher created successfully', 'user_voucher' => $userVoucher], 201);
+            } else {
+                return response()->json(['message' => 'Failed to create user voucher'], 500);
+            }
+        } catch (QueryException $e) {
+            // Handle database query exception
+            return response()->json(['message' => 'Failed to create user voucher: ' . $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            // Handle other exceptions
+            return response()->json(['message' => 'Failed to create user voucher: ' . $e->getMessage()], 500);
         }
     }
 
@@ -62,7 +77,7 @@ class UserVoutcherController extends Controller
     public function show($id)
     {
         // Find the user voucher by its id with relations loaded
-        $userVoucher = User_voutcher::with('user', 'voucherPlan')->find($id);
+        $userVoucher = User_voutcher::with('user', 'voutcher_plan')->find($id);
 
         // Check if the user voucher exists
         if (!$userVoucher) {
@@ -97,9 +112,12 @@ class UserVoutcherController extends Controller
         // Validate incoming request data
         $validatedData = $request->validate([
             'user_id' => 'required|integer|exists:users,id',
-            'voucher_plan_id' => 'required|integer|exists:voutcher_plan,id',
+            'voutcher_plan_id' => 'required|integer|exists:voutcher_plan,id',
             'value_in_pounds' => 'required|numeric|between:0,9999.99',
             'expiration_date' => 'required|date',
+            'num_of_point' => 'required|integer',
+            'status' => 'required|integer',
+            'voutcher_plan_name' => 'required|string',
         ]);
 
         // Update the user voucher with validated data
@@ -159,7 +177,7 @@ class UserVoutcherController extends Controller
         ]);
 
         // Search for customer vouchers by customer phone number
-        $customerVouchers = CustomerVoucher::whereHas('customer', function ($query) use ($validatedData) {
+        $customerVouchers = User_voutcher::whereHas('customer_id', function ($query) use ($validatedData) {
             $query->where('phone_number', $validatedData['phone_number']);
         })->get();
 
@@ -168,6 +186,31 @@ class UserVoutcherController extends Controller
         }
 
         return response()->json(['customer_vouchers' => $customerVouchers], 200);
+    }
+
+    public function searchByDate(Request $request)
+    {
+        try {
+            // Validate incoming request data
+            $validator = Validator::make($request->all(), [
+                'date' => 'required|date', // Validate record_date
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+
+            // Convert record_date to Carbon instance
+            $recordDate = Carbon::parse($request->date);
+
+            // Query transactions where record_date is on or after the provided record_date
+            $User_voutchers = User_voutcher::where('updated_at', '>=', $recordDate->toDateTimeString())->get();
+
+            return response()->json(['users' => $User_voutchers], 200);
+        } catch (\Exception $e) {
+            // Return a response indicating failure
+            return response()->json(['message' => 'Failed to search user voucher by date', 'error' => $e->getMessage()], 500);
+        }
     }
 
 }
