@@ -41,7 +41,7 @@ class VoutcherPlanController extends Controller
         try {
             // Validate incoming request data
             $validator = Validator::make($request->all(), [
-                'id' => 'required|integer|unique:voutcher_plan,id',
+                'id' => 'required|integer',
                 'name' => 'required|string',
                 'status' => 'required|integer',
                 'number_of_points' => 'required|integer',
