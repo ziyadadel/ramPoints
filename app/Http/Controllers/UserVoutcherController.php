@@ -129,7 +129,7 @@ class UserVoutcherController extends Controller
         }
 
         // Validate incoming request data
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'user_id' => 'required|integer|exists:users,id',
             'voutcher_plan_id' => 'required|integer|exists:voutcher_plan,id',
             'branch_id' => 'integer|exists:branchs,id',
@@ -140,8 +140,21 @@ class UserVoutcherController extends Controller
             'voutcher_plan_name' => 'required|string',
         ]);
 
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $userVoucher->user_id = $request->user_id;
+        $userVoucher->voutcher_plan_id = $request->voutcher_plan_id;
+        $userVoucher->branch_id = $request->branch_id;
+        $userVoucher->value_in_pounds = $request->value_in_pounds;
+        $userVoucher->expiration_date = $request->expiration_date;
+        $userVoucher->num_of_point = $request->num_of_point;
+        $userVoucher->status = $request->status;
+        $userVoucher->voutcher_plan_name = $request->voutcher_plan_name;
+
         // Update the user voucher with validated data
-        $userVoucher->update($validatedData);
+        $userVoucher->save();
 
         // Optionally, you can return a response indicating success or failure
         return response()->json(['message' => 'User voucher updated successfully', 'user_voucher' => $userVoucher], 200);
@@ -244,14 +257,22 @@ class UserVoutcherController extends Controller
         }
 
         // Validate incoming request data
-        $validatedData = $request->validate([
+        $validator = Validator::make($request->all(), [
             'sold_date' => 'required|date',
             'status' => 'required|integer',
             'branch_id' => 'required|integer|exists:branchs,id',
         ]);
 
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $userVoucher->sold_date = $request->sold_date;
+        $userVoucher->status = $request->status;
+        $userVoucher->branch_id = $request->branch_id;
+
         // Update the user voucher with validated data
-        $userVoucher->update($validatedData);
+        $userVoucher->save();
 
         // Optionally, you can return a response indicating success or failure
         return response()->json(['message' => 'User voucher updated successfully', 'user_voucher' => $userVoucher], 200);
