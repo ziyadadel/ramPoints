@@ -17,7 +17,7 @@ class User_voutcher extends Model
      * @var array
      */
     protected $fillable = [
-        'num_of_point','user_id', 'voutcher_plan_id', 'value_in_pounds', 'expiration_date','status','sold_date','status','voutcher_plan_name'
+        'num_of_point','user_id', 'voutcher_plan_id','branch_id', 'value_in_pounds', 'expiration_date','status','sold_date','status','voutcher_plan_name'
     ];
 
     /**

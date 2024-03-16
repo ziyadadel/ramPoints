@@ -42,6 +42,7 @@ class UserVoutcherController extends Controller
             $validator = Validator::make($request->all(),[
                 'user_id' => 'required|integer|exists:users,id',
                 'voutcher_plan_id' => 'required|integer|exists:voutcher_plan,id',
+                'branch_id' => 'integer|exists:branchs,id',
                 'value_in_pounds' => 'required|numeric|between:0,9999.99',
                 'expiration_date' => 'required|date',
                 'num_of_point' => 'required|integer',
@@ -131,6 +132,7 @@ class UserVoutcherController extends Controller
         $validatedData = $request->validate([
             'user_id' => 'required|integer|exists:users,id',
             'voutcher_plan_id' => 'required|integer|exists:voutcher_plan,id',
+            'branch_id' => 'integer|exists:branchs,id',
             'value_in_pounds' => 'required|numeric|between:0,9999.99',
             'expiration_date' => 'required|date',
             'num_of_point' => 'required|integer',
@@ -245,6 +247,7 @@ class UserVoutcherController extends Controller
         $validatedData = $request->validate([
             'sold_date' => 'required|date',
             'status' => 'required|integer',
+            'branch_id' => 'required|integer|exists:branchs,id',
         ]);
 
         // Update the user voucher with validated data

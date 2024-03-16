@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('voutcher_plan_id');
+            $table->unsignedBigInteger('branch_id')->nullable();
             $table->decimal('value_in_pounds', 6, 2);
             $table->timestamp('expiration_date')->useCurrent();
             $table->boolean('status')->default(0);
@@ -25,6 +26,7 @@ return new class extends Migration
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('voutcher_plan_id')->references('id')->on('voutcher_plan')->onDelete('cascade');
+            $table->foreign('branch_id')->references('id')->on('branchs')->onDelete('set null');
         });
     }
 
