@@ -69,10 +69,15 @@ class UserController extends Controller
             $user = Auth::guard('user_api')->user();
             $token = auth('user_api')->login($user);
 
-            return response()->json(['token' => $token, 'user' => $user]);
+            $message = 'User Loged In Successfully';
+            $statusCode = Response::HTTP_OK;
+
+            return response()->json(['status' => $statusCode,'message' => $message, 'user' => $user,'token' => $token]);
         }
 
-        return response()->json(['error' => 'Invalid credentials'], 401);
+        $message = 'Failed to login';
+        $statusCode = Response::HTTP_BAD_REQUEST;
+        return response()->json(['status' => $statusCode,'message' => $message,'error' => 'Invalid credentials'], 401);
     }
 
     public function logout(Request $request)
