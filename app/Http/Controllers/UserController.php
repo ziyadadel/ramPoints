@@ -33,7 +33,7 @@ class UserController extends Controller
         if ($validator->fails()) {
             $message = 'Failed to register user';
             $statusCode = Response::HTTP_BAD_REQUEST;
-            return response()->json(['message' => $message,'status' => $statusCode,'errors' => $validator->errors()], 422);
+            return response()->json(['message' => $message,'status' => $statusCode,'errors' => $validator->errors()], 400);
         }
 
         try {
@@ -77,7 +77,7 @@ class UserController extends Controller
 
         $message = 'Failed to login';
         $statusCode = Response::HTTP_BAD_REQUEST;
-        return response()->json(['status' => $statusCode,'message' => $message,'error' => 'Invalid credentials'], 401);
+        return response()->json(['status' => $statusCode,'message' => $message,'error' => 'Invalid credentials'], 400);
     }
 
     public function logout(Request $request)
