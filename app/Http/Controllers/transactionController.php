@@ -259,7 +259,8 @@ class transactionController extends Controller
             $transaction = Transaction::where('transaction_qr_code', $request->input('transaction_qr_code'))->first();
 
             if (!$transaction) {
-                return response()->json(['message' => 'هذه الفاتورة غير موجودة'], 404);
+                $statusCode = Response::HTTP_NOT_FOUND;
+                return response()->json(['message' => 'هذه الفاتورة غير موجودة','status' => $statusCode], 404);
             }
 
             // Check if customer_id is null and transaction_qr_code is provided
@@ -279,11 +280,13 @@ class transactionController extends Controller
 
                     // Save the updated user
                     $user->save();
+                    $statusCode = Response::HTTP_OK;
         
                     // Return a response indicating success
-                    return response()->json(['message' => 'تم إضافة النقاط ', 'transaction' => $transaction], 200);
+                    return response()->json(['message' => 'تم إضافة النقاط ','status' => $statusCode ,'transaction' => $transaction], 200);
             }else{
-                return response()->json(['message' => 'هذة الفاتوره مستخدمة من قبل ',], 400);
+                $statusCode = Response::HTTP_BAD_REQUEST;
+                return response()->json(['message' => 'هذة الفاتوره مستخدمة من قبل ', 'status' => $statusCode], 400);
             }
 
         } catch (\Exception $e) {

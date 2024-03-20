@@ -103,8 +103,10 @@ class UserVoutcherController extends Controller
             return response()->json(['message' => 'User voucher not found'], 404);
         }
 
+        $statusCode = Response::HTTP_OK;
+
         // Return the user voucher
-        return response()->json(['user_voucher' => $userVoucher], 200);
+        return response()->json(['message' => 'user voucher Fetched successfully: ','status' => $statusCode,'user_voucher' => $userVoucher], 200);
     }
 
     /**

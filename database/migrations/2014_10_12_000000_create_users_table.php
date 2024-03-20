@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('phone_number');
             $table->string('password');
+            $table->string('role')->default('user');
             $table->integer('number_of_points')->default(0);
             $table->string('verification_code')->nullable();
             $table->timestamp('verification_code_send_date')->nullable();

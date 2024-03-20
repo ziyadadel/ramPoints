@@ -42,6 +42,7 @@ class UserController extends Controller
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'phone_number' => $request->phone_number,
+                'role' => $request->role,
                 'password' => $passwordHash,
             ]);
 
@@ -57,9 +58,9 @@ class UserController extends Controller
     {
         $credentials = $request->only('email', 'password');
 
-        if (Auth::guard('api-user')->attempt($credentials)) {
-            $user = Auth::guard('api-user')->user();
-            $token = auth('api-user')->login($user);
+        if (Auth::guard('user_api')->attempt($credentials)) {
+            $user = Auth::guard('user_api')->user();
+            $token = auth('user_api')->login($user);
 
             return response()->json(['token' => $token, 'user' => $user]);
         }
@@ -69,18 +70,9 @@ class UserController extends Controller
 
     public function logout(Request $request)
     {
-         $token = $request -> header('auth-token');
-        if($token){
-            try {
+        Auth::guard('user_api')->logout();
 
-                JWTAuth::setToken($token)->invalidate(); //logout
-            }catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e){
-                return  $this -> returnError('','some thing went wrongs');
-            }
-            return $this->returnSuccessMessage('Logged out successfully');
-        }else{
-            $this -> returnError('','some thing went wrongs');
-        }
+        return response()->json(['message' => 'Successfully logged out']);
 
     }
 
