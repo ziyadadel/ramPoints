@@ -19,7 +19,7 @@ class CheckAdmin
         $role = $user->role;
 
         // Check if the user exists in the users table
-        if ($role == 'user') {
+        if ($role == 'user' || $role == null) {
             return response()->json(['error' => 'Admin not found'], 404);
         }
         
