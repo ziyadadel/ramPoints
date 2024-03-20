@@ -8,7 +8,7 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\KindController;
 use App\Http\Controllers\GeerController;
 use App\Http\Controllers\CarController;
-use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\transactionController;
 use App\Http\Controllers\branchController;
 use App\Http\Controllers\VoutcherPlanController;
 use App\Http\Controllers\UserVoutcherController;
@@ -32,22 +32,22 @@ Route::post('/user/login', [UserController::class, 'login']);
 
 
 Route::group(['middleware' => ['api','checkAdmin'],'prefix' => 'auth','namespace'=>'Admin'], function () {
-    
+
     Route::post('/admin/logout', [UserController::class, 'logout']);
     
     Route::get('/user', [UserController::class, 'allUsers']);
     Route::post('/user/searchByDate', [UserController::class, 'searchByDate']);
     Route::post('/refresh', [AdminController::class, 'refresh']);
     
-    Route::get('/trans', [TransactionController::class, 'index']);
-    Route::get('/trans/{transaction_number}/{branch_id}', [TransactionController::class, 'show']);
-    Route::post('/trans', [TransactionController::class, 'store']);
-    Route::put('/trans/{id}', [TransactionController::class, 'update']);
-    Route::delete('/trans/{id}', [TransactionController::class, 'destroy']);
-    Route::post('/trans/searchByRecordDate', [TransactionController::class, 'searchByRecordDate']);
-    Route::post('/trans/searchByAll', [TransactionController::class, 'searchByAll']);
-    Route::get('/trans/currentDate', [TransactionController::class, 'currentDate']);
-    Route::post('/trans/bulktrans', [TransactionController::class, 'reserveBulk']);
+    Route::get('/trans', [transactionController::class, 'index']);
+    Route::get('/trans/{transaction_number}/{branch_id}', [transactionController::class, 'show']);
+    Route::post('/trans', [transactionController::class, 'store']);
+    Route::put('/trans/{id}', [transactionController::class, 'update']);
+    Route::delete('/trans/{id}', [transactionController::class, 'destroy']);
+    Route::post('/trans/searchByRecordDate', [transactionController::class, 'searchByRecordDate']);
+    Route::post('/trans/searchByAll', [transactionController::class, 'searchByAll']);
+    Route::get('/trans/currentDate', [transactionController::class, 'currentDate']);
+    Route::post('/trans/bulktrans', [transactionController::class, 'reserveBulk']);
     
     
     Route::get('/branch', [branchController::class, 'index']);
@@ -95,6 +95,6 @@ Route::group(['middleware' => ['api','checkUser'],'prefix' => 'auth','namespace'
     
     Route::get('/uservoutcher', [UserVoutcherController::class, 'index']);
     Route::get('/uservoutcher/{id}', [UserVoutcherController::class, 'show']);
-    Route::post('/trans/updateTransaction', [TransactionController::class, 'updateTransaction']);
+    Route::post('/trans/updateTransaction', [transactionController::class, 'updateTransaction']);
     
 });
