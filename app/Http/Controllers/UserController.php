@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Hash;
-use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -126,14 +126,13 @@ class UserController extends Controller
         try {
             $user = JWTAuth::parseToken()->authenticate();
 
-            $message = 'User Created Successfully';
+            $message = 'User Fetched Successfully';
             $statusCode = Response::HTTP_OK;
 
             return response()->json(['status' => $statusCode,'message' => $message,'user' => $user], 200);
         } catch (\Exception $e) {
             // Return a response indicating failure
-            $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
-            return response()->json(['status' => $statusCode,'message' => 'Failed to search user by token', 'error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed to search transactions by record date', 'error' => $e->getMessage()], 500);
         }
     }
 }
