@@ -92,6 +92,7 @@ Route::group(['middleware' => ['api','checkUser'],'prefix' => 'auth','namespace'
     
     
     Route::post('/user/logout', [UserController::class, 'logout']);
+    Route::get('/getuser', [UserController::class, 'getUser']);
     
     Route::get('/uservoutcher', [UserVoutcherController::class, 'index']);
     Route::get('/uservoutcher/{id}', [UserVoutcherController::class, 'show']);

@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Hash;
 use Carbon\Carbon;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class UserController extends Controller
 {
@@ -29,7 +31,9 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            $message = 'Failed to register user';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return response()->json(['message' => $message,'status' => $statusCode,'errors' => $validator->errors()], 422);
         }
 
         try {
@@ -46,11 +50,14 @@ class UserController extends Controller
                 'password' => $passwordHash,
             ]);
 
+            $message = 'User Created Successfully';
+            $statusCode = Response::HTTP_OK;
             // Return a response indicating success
-            return response()->json(['user' => $user], 201);
+            return response()->json(['message' => $message,'status' => $statusCode,'user' => $user], 200);
         } catch (\Exception $e) {
             // Return a response indicating failure
-            return response()->json(['message' => 'Failed to register user', 'error' => $e->getMessage()], 500);
+            $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+            return response()->json(['message' => 'Failed to register user','status' => $statusCode, 'error' => $e->getMessage()], 500);
         }
     }
 
@@ -110,6 +117,23 @@ class UserController extends Controller
         } catch (\Exception $e) {
             // Return a response indicating failure
             return response()->json(['message' => 'Failed to search transactions by record date', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getUser(Request $request)
+    {
+        
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+
+            $message = 'User Created Successfully';
+            $statusCode = Response::HTTP_OK;
+
+            return response()->json(['status' => $statusCode,'message' => $message,'user' => $user], 200);
+        } catch (\Exception $e) {
+            // Return a response indicating failure
+            $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+            return response()->json(['status' => $statusCode,'message' => 'Failed to search user by token', 'error' => $e->getMessage()], 500);
         }
     }
 }
