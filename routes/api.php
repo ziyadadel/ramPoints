@@ -30,6 +30,7 @@ use App\Http\Controllers\ForgetPasswordController;
 Route::post('/user/register', [UserController::class, 'register']);
 Route::post('/admin/login', [UserController::class, 'login']);
 Route::post('/user/login', [UserController::class, 'login']);
+Route::get('/branch', [branchController::class, 'index']);
 
 
 Route::group(['middleware' => ['api','checkAdmin'],'prefix' => 'auth','namespace'=>'Admin'], function () {
@@ -51,7 +52,6 @@ Route::group(['middleware' => ['api','checkAdmin'],'prefix' => 'auth','namespace
     Route::post('/trans/bulktrans', [transactionController::class, 'reserveBulk']);
     
     
-    Route::get('/branch', [branchController::class, 'index']);
     Route::get('/branch/{id}', [branchController::class, 'show']);
     Route::post('/branch', [branchController::class, 'store']);
     Route::put('/branch/{id}', [branchController::class, 'update']);
