@@ -46,7 +46,6 @@ class UserVoutcherController extends Controller
                 'value_in_pounds' => 'required|numeric|between:0,9999.99',
                 'expiration_date' => 'required|date',
                 'num_of_point' => 'required|integer',
-                'status' => 'required|integer',
                 'voutcher_plan_name' => 'required|string',
             ]);
 
@@ -135,7 +134,6 @@ class UserVoutcherController extends Controller
             'value_in_pounds' => 'required|numeric|between:0,9999.99',
             'expiration_date' => 'required|date',
             'num_of_point' => 'required|integer',
-            'status' => 'required|integer',
             'voutcher_plan_name' => 'required|string',
         ]);
 
@@ -149,7 +147,6 @@ class UserVoutcherController extends Controller
         $userVoucher->value_in_pounds = $request->value_in_pounds;
         $userVoucher->expiration_date = $request->expiration_date;
         $userVoucher->num_of_point = $request->num_of_point;
-        $userVoucher->status = $request->status;
         $userVoucher->voutcher_plan_name = $request->voutcher_plan_name;
 
         // Update the user voucher with validated data
@@ -297,12 +294,30 @@ class UserVoutcherController extends Controller
         }
 
         $userVoucher->voucher_number = $request->voucher_number;
+        $userVoucher->status = 1;
 
         // Update the user voucher with validated data
         $userVoucher->save();
 
         // Optionally, you can return a response indicating success or failure
         return response()->json(['message' => 'User voucher updated successfully', 'user_voucher' => $userVoucher], 200);
+    }
+
+    public function allUserVoucher($user_id)
+    {
+        // Find the user voucher by its id with relations loaded
+        $userVoucher = User_voutcher::with('user', 'voutcher_plan')->find($user_id);
+        $User_voutchers = User_voutcher::where('user_id', $user_id)->with('user', 'voutcher_plan')->get();
+
+        // Check if the user voucher exists
+        if (!$User_voutchers) {
+            return response()->json(['message' => 'User voucher not found'], 404);
+        }
+
+        $statusCode = Response::HTTP_OK;
+
+        // Return the user voucher
+        return response()->json(['message' => 'user voucher Fetched successfully: ','status' => $statusCode,'data' => $User_voutchers], 200);
     }
 
 }
