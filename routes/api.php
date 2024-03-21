@@ -15,6 +15,7 @@ use App\Http\Controllers\UserVoutcherController;
 use App\Http\Controllers\CompanyDetailsController;
 use App\Http\Controllers\MagazinesController;
 use App\Http\Controllers\OffersController;
+use App\Http\Controllers\ForgetPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -86,13 +87,18 @@ Route::group(['middleware' => ['api','checkAdmin'],'prefix' => 'auth','namespace
     Route::put('/offer/{id}', [OffersController::class, 'update']);
     Route::delete('/offer/{id}', [OffersController::class, 'destroy']);
     
+    Route::post('/changeAdminPassword', [UserController::class, 'changePassword']);
 });
+
+Route::post('/user/forgotPassword', [ForgetPasswordController::class, 'sendEmail']);
+Route::post('/user/verify', [UserController::class, 'verify']);
 
 Route::group(['middleware' => ['api','checkUser'],'prefix' => 'auth','namespace'=>'User'], function () {
     
     
     Route::post('/user/logout', [UserController::class, 'logout']);
     Route::get('/getuser', [UserController::class, 'getUser']);
+    Route::post('/changeUserPassword', [UserController::class, 'changePassword']);
     
     Route::get('/uservoutcher', [UserVoutcherController::class, 'index']);
     Route::get('/uservoutcher/{id}', [UserVoutcherController::class, 'show']);

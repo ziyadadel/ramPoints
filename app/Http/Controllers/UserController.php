@@ -13,6 +13,9 @@ use Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Password;
+use App\Mail\verification;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -23,10 +26,10 @@ class UserController extends Controller
     {
         // Validate incoming request data
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email|unique:users,email',
             'first_name' => 'required|string',
             'last_name' => 'required|string',
-            'phone_number' => 'required|string',
+            'phone_number' => 'required|string|unique:users,phone_number',
             'password' => 'required|string',
         ]);
 
@@ -50,6 +53,8 @@ class UserController extends Controller
                 'password' => $passwordHash,
             ]);
 
+            $this->sendVerificationCode($user);
+
             $message = 'User Created Successfully';
             $statusCode = Response::HTTP_OK;
             // Return a response indicating success
@@ -63,6 +68,16 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
+        // Assuming you have a 'email' field in your user table
+        $user = User::where('email', $request->email)->first();
+
+        if ($user->email_verified_at == null) {
+            $this->sendVerificationCode($request);
+            $message = 'you need to verify your mail first and we have send the verifiction code';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return response()->json(['message' => $message,'status' => $statusCode], 400);
+        }
+
         $credentials = $request->only('email', 'password');
 
         if (Auth::guard('user_api')->attempt($credentials)) {
@@ -138,6 +153,91 @@ class UserController extends Controller
         } catch (\Exception $e) {
             // Return a response indicating failure
             return response()->json(['message' => 'Failed to search transactions by record date', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function changePassword(Request $request)
+    {
+        // Validate request parameters
+        $validator = Validator::make($request->all(), [
+            'old_password' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        if ($validator->fails()) {
+            $message = 'Failed to change user password';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return response()->json(['message' => $message,'status' => $statusCode,'errors' => $validator->errors()], 400);
+        }
+
+        // Find the user by token
+        $user = JWTAuth::parseToken()->authenticate();
+
+        if (!$user) {
+            return response()->json(['message' => 'Invalid token'], 400);
+        }
+
+        // Verify the old password
+        if (!Hash::check($request->old_password, $user->password)) {
+            return response()->json(['message' => 'Old password is incorrect'], 400);
+        }
+
+        // Update the password
+        $user->password = Hash::make($request->input('password'));
+        $user->save();
+
+        return response()->json(['message' => 'Password changed successfully'], 200);
+    }
+
+
+    public function generateVerificationCode()
+    {
+        // Generate a random 6-digit verification code
+        $verificationCode = random_int(100000, 999999);
+        return $verificationCode;
+    }
+
+    public function sendVerificationCode($user)
+    {
+        // Assuming you have a 'email' field in your user table
+        $user = User::where('email', $user->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $verificationCode = $this->generateVerificationCode();
+
+        // Store the hashed verification code in the user record
+        $user->verification_code = Hash::make($verificationCode);
+        $user->save();
+
+        $email = $user->email;
+        $token = $verificationCode;
+
+        Mail::to($email)->send(new verification($token, $email));
+        
+        return response()->json(['message' => 'Verification code sent successfully'], 200);
+    }
+
+    public function verify(Request $request)
+    {
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // Check if the provided verification code matches the stored value
+        if (Hash::check($request->input('verification_code'), $user->verification_code)) {
+            // Verification successful
+            $user->verification_code = null; // Clear the verification code after successful verification
+            $user->email_verified_at = Carbon::now(); 
+            $user->save();
+            return response()->json(['message' => 'Verification successful'], 200);
+        } else {
+            // Verification failed
+            return response()->json(['message' => 'Invalid verification code'], 400);
         }
     }
 }
