@@ -75,7 +75,7 @@ class UserController extends Controller
             $this->sendVerificationCode($request);
             $message = 'you need to verify your mail first and we have send the verifiction code';
             $statusCode = Response::HTTP_BAD_REQUEST;
-            return response()->json(['message' => $message,'status' => $statusCode], 400);
+            return response()->json(['status' => $statusCode,'message' => $message], 400);
         }
 
         $credentials = $request->only('email', 'password');
@@ -242,8 +242,15 @@ class UserController extends Controller
             return response()->json(['status' => $statusCode,'message' => $message], 400);
         }
 
+        if(!$user->email_verified_at == null)
+        {
+            $message = 'account already verified';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return response()->json(['status' => $statusCode,'message' => $message], 400);
+        }
+
         // Check if the provided verification code matches the stored value
-        if (Hash::check($request->input('verification_code'), $user->verification_code)) {
+        if (Hash::check($request->verification_code, $user->verification_code)) {
             // Verification successful
             $user->verification_code = null; // Clear the verification code after successful verification
             $user->email_verified_at = Carbon::now(); 
