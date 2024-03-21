@@ -103,6 +103,7 @@ Route::group(['middleware' => ['api','checkUser'],'prefix' => 'auth','namespace'
     Route::get('/uservoutcher', [UserVoutcherController::class, 'index']);
     Route::post('/uservoutcher', [UserVoutcherController::class, 'store']);
     Route::get('/uservoutcher/{id}', [UserVoutcherController::class, 'show']);
+    Route::get('/uservoutcher/getvouchers/{user_id}', [UserVoutcherController::class, 'allUserVoucher']);
     Route::post('/trans/updateTransaction', [transactionController::class, 'updateTransaction']);
     
 });
