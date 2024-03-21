@@ -256,7 +256,7 @@ class UserVoutcherController extends Controller
         $validator = Validator::make($request->all(), [
             'sold_date' => 'required|date',
             'status' => 'required|integer',
-            'branch_id' => 'required|integer|exists:branchs,id',
+            'voucher_number' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -265,7 +265,7 @@ class UserVoutcherController extends Controller
 
         $userVoucher->sold_date = $request->sold_date;
         $userVoucher->status = $request->status;
-        $userVoucher->branch_id = $request->branch_id;
+        $userVoucher->voucher_number = $request->voucher_number;
 
         // Update the user voucher with validated data
         $userVoucher->save();
