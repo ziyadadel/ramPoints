@@ -174,19 +174,26 @@ class UserController extends Controller
         $user = JWTAuth::parseToken()->authenticate();
 
         if (!$user) {
-            return response()->json(['message' => 'Invalid token'], 400);
+            $message = 'Invalid token';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return response()->json(['status' => $statusCode,'message' => $message], 400);
         }
 
         // Verify the old password
         if (!Hash::check($request->old_password, $user->password)) {
-            return response()->json(['message' => 'Old password is incorrect'], 400);
+            $message = 'Old password is incorrect';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return response()->json(['status' => $statusCode,'message' => $message], 400);
         }
 
         // Update the password
         $user->password = Hash::make($request->input('password'));
         $user->save();
 
-        return response()->json(['message' => 'Password changed successfully'], 200);
+        $message = 'Password changed successfully';
+        $statusCode = Response::HTTP_OK;
+
+        return response()->json(['status' => $statusCode ,'message' => $message], 200);
     }
 
 
@@ -203,7 +210,9 @@ class UserController extends Controller
         $user = User::where('email', $user->email)->first();
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            $message = 'User not found';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return response()->json(['status' => $statusCode,'message' => $message], 400);
         }
 
         $verificationCode = $this->generateVerificationCode();
@@ -216,8 +225,11 @@ class UserController extends Controller
         $token = $verificationCode;
 
         Mail::to($email)->send(new verification($token, $email));
+
+        $message = 'Verification code sent successfully';
+        $statusCode = Response::HTTP_OK;
         
-        return response()->json(['message' => 'Verification code sent successfully'], 200);
+        return response()->json(['status' => $statusCode,'message' => $message], 200);
     }
 
     public function verify(Request $request)
@@ -225,7 +237,9 @@ class UserController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
+            $message = 'User not found';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return response()->json(['status' => $statusCode,'message' => $message], 400);
         }
 
         // Check if the provided verification code matches the stored value
@@ -234,10 +248,15 @@ class UserController extends Controller
             $user->verification_code = null; // Clear the verification code after successful verification
             $user->email_verified_at = Carbon::now(); 
             $user->save();
-            return response()->json(['message' => 'Verification successful'], 200);
+
+            $message = 'Verification successful';
+            $statusCode = Response::HTTP_OK;
+            return response()->json(['status' => $statusCode,'message' => $message], 200);
         } else {
             // Verification failed
-            return response()->json(['message' => 'Invalid verification code'], 400);
+            $message = 'Invalid verification code';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return response()->json(['status' => $statusCode,'message' => $message], 400);
         }
     }
 }
