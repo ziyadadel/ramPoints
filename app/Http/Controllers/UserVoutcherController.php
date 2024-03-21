@@ -55,7 +55,7 @@ class UserVoutcherController extends Controller
                 return response()->json(['error' => $validator->errors()], 400);
             }
 
-            $user = User::where('id', $request->input('user_id'))->first();
+            $user = User::where('id', $request->user_id)->first();
 
             if($user->number_of_points >= $request->num_of_point)
             {
@@ -70,9 +70,6 @@ class UserVoutcherController extends Controller
             }
     
             // Create user voucher instance
-
-
-                    
 
     
             // Optionally, you can return a response indicating success or failure
@@ -272,6 +269,34 @@ class UserVoutcherController extends Controller
         $userVoucher->sold_date = $request->sold_date;
         $userVoucher->status = $request->status;
         $userVoucher->branch_id = $request->branch_id;
+
+        // Update the user voucher with validated data
+        $userVoucher->save();
+
+        // Optionally, you can return a response indicating success or failure
+        return response()->json(['message' => 'User voucher updated successfully', 'user_voucher' => $userVoucher], 200);
+    }
+
+    public function updateVoucherNumber(Request $request, $id)
+    {
+        // Find the user voucher by its id
+        $userVoucher = User_voutcher::find($id);
+
+        // Check if the user voucher exists
+        if (!$userVoucher) {
+            return response()->json(['message' => 'User voucher not found'], 404);
+        }
+
+        // Validate incoming request data
+        $validator = Validator::make($request->all(), [
+            'voucher_number' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $userVoucher->voucher_number = $request->voucher_number;
 
         // Update the user voucher with validated data
         $userVoucher->save();

@@ -65,13 +65,13 @@ Route::group(['middleware' => ['api','checkAdmin'],'prefix' => 'auth','namespace
     
     Route::get('/uservoutcher', [UserVoutcherController::class, 'index']);
     Route::get('/uservoutcher/{id}', [UserVoutcherController::class, 'show']);
-    Route::post('/uservoutcher', [UserVoutcherController::class, 'store']);
     Route::put('/uservoutcher/{id}', [UserVoutcherController::class, 'update']);
     Route::delete('/uservoutcher/{id}', [UserVoutcherController::class, 'destroy']);
     Route::post('/updateStatusAndSoldDate/{id}', [UserVoutcherController::class, 'updateStatusAndSoldDate']);
     Route::post('/searchByCustomerPhoneNumber', [UserVoutcherController::class, 'searchByCustomerPhoneNumber']);
     Route::post('/uservoutcher/updatesoldandstatus/{id}', [UserVoutcherController::class, 'updateSoldDate']);
     Route::post('/uservoutcher/searchByDate', [UserVoutcherController::class, 'searchByDate']);
+    Route::post('/uservoutcher/updateVoucherNumber/{id}', [UserVoutcherController::class, 'updateVoucherNumber']);
     
     
     Route::get('/companydetails', [CompanyDetailsController::class, 'index']);
@@ -101,6 +101,7 @@ Route::group(['middleware' => ['api','checkUser'],'prefix' => 'auth','namespace'
     Route::post('/changeUserPassword', [UserController::class, 'changePassword']);
     
     Route::get('/uservoutcher', [UserVoutcherController::class, 'index']);
+    Route::post('/uservoutcher', [UserVoutcherController::class, 'store']);
     Route::get('/uservoutcher/{id}', [UserVoutcherController::class, 'show']);
     Route::post('/trans/updateTransaction', [transactionController::class, 'updateTransaction']);
     
