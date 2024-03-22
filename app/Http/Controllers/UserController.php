@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Password;
 use App\Mail\verification;
 use Illuminate\Support\Facades\Mail;
+use DB;
 
 class UserController extends Controller
 {
@@ -73,7 +74,7 @@ class UserController extends Controller
 
         if ($user->email_verified_at == null) {
             $this->sendVerificationCode($request);
-            $message = 'you need to verify your mail first and we have send the verifiction code';
+            $message = 'أنت بحاجه لتفعيل الإيميل الخاص بك اولاً لقد قمنا بإرسال كود التفعيل';
             $statusCode = Response::HTTP_BAD_REQUEST;
             return response()->json(['status' => $statusCode,'message' => $message], 400);
         }
@@ -90,9 +91,12 @@ class UserController extends Controller
             return response()->json(['status' => $statusCode,'message' => $message, 'user' => $user,'token' => $token]);
         }
 
-        $message = 'Failed to login';
+        $message = 'كلمة السر غير صحيحة';
         $statusCode = Response::HTTP_BAD_REQUEST;
-        return response()->json(['status' => $statusCode,'message' => $message,'error' => 'Invalid credentials'], 400);
+        return response()->json([
+            'status' => $statusCode,
+            'message' => $message,
+        ], 400);
     }
 
     public function logout(Request $request)
@@ -266,4 +270,64 @@ class UserController extends Controller
             return response()->json(['status' => $statusCode,'message' => $message], 400);
         }
     }
+
+    public function changeForgetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'verification_code' => 'required|integer',
+            'password' => 'required|confirmed|string|min:6',
+        ]);
+
+        if ($validator->fails()) {
+            $message = 'هنالك خطئ بالإيميل او كلمة السر';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return response()->json([
+                'status' => $statusCode,
+                'message' => $message,
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        $verifyCode = DB::table('password_reset_tokens')->where('email', $request->email)->first();
+
+        if (!$verifyCode) {
+            $message = 'هذا المستخدم غير موجود';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return response()->json([
+                'status' => $statusCode,
+                'message' => $message,
+            ], 400);
+        }
+
+        if (!$user) {
+            $message = 'هذا المستخدم غير موجود';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return response()->json([
+                'status' => $statusCode,
+                'message' => $message,
+            ], 400);
+        }
+
+        if ($verifyCode->token !== $request->verification_code) {
+            $message = 'الكود غير صحيح';
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            return response()->json([
+                'status' => $statusCode,
+                'message' => $message
+            ], 400);
+        }
+
+        // Verification successful
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        $message = 'تم تغيير كلمة السر بنجاح';
+        $statusCode = Response::HTTP_OK;
+        return response()->json(['status' => $statusCode, 'message' => $message], 200);
+    }
+
 }

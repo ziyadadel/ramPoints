@@ -59,15 +59,21 @@ class ForgetPasswordController extends Controller
 
     public function failedResponse()
     {
+        $message = 'هذا الإيميل غير موجود';
+        $statusCode = Response::HTTP_BAD_REQUEST;
         return response()->json([
-            'error' => 'Email does\'t found on our database'
+            'status' => $statusCode,
+            'message' => $message,
         ], Response::HTTP_NOT_FOUND);
     }
 
     public function successRespopnse()
     {
+        $statusCode = Response::HTTP_OK;
+        $message = 'تم إرسال الكود بنجاح';
         return response()->json([
-            'data' => 'Reset Email is send successfully, please check your inbox'
-        ], Response::HTTP_OK);
+            'status' => $statusCode,
+            'message' => $message
+        ], 200);
     }
 }

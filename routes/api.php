@@ -93,6 +93,7 @@ Route::group(['middleware' => ['api','checkAdmin'],'prefix' => 'auth','namespace
 
 Route::post('/user/forgotPassword', [ForgetPasswordController::class, 'sendEmail']);
 Route::post('/user/verify', [UserController::class, 'verify']);
+Route::post('/user/changeForgetPassword', [UserController::class, 'changeForgetPassword']);
 
 Route::group(['middleware' => ['api','checkUser'],'prefix' => 'auth','namespace'=>'User'], function () {
     
