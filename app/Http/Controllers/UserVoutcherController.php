@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\User_voutcher;
+use App\Models\Voutcher_plan;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
@@ -43,27 +44,49 @@ class UserVoutcherController extends Controller
                 'user_id' => 'required|integer|exists:users,id',
                 'voutcher_plan_id' => 'required|integer|exists:voutcher_plan,id',
                 'branch_id' => 'integer|exists:branchs,id',
-                'value_in_pounds' => 'required|numeric|between:0,9999.99',
-                'expiration_date' => 'required|date',
-                'num_of_point' => 'required|integer',
-                'voutcher_plan_name' => 'required|string',
+                // 'value_in_pounds' => 'required|numeric|between:0,9999.99',
+                // 'expiration_date' => 'required|date',
+                // 'num_of_point' => 'required|integer',
+                // 'voutcher_plan_name' => 'required|string',
             ]);
 
             if ($validator->fails()) {
                 // Handle validation failure as per your requirement
                 return response()->json(['error' => $validator->errors()], 400);
             }
+            $voucher_plan = Voutcher_plan::where('id', $request->voutcher_plan_id)->first();
 
             $user = User::where('id', $request->user_id)->first();
 
-            if($user->number_of_points >= $request->num_of_point)
+            $expirationDate = now()->addDays($voucher_plan->number_of_days_to_expire);
+
+            if($user->number_of_points >= $voucher_plan->number_of_points)
             {
                 $user->number_of_points =  $user->number_of_points - $request->num_of_point;
 
                 // Save the updated user
                 $user->save();
 
-                $userVoucher = User_voutcher::create($validator->validated());
+                $userVoucher = User_voutcher::create([
+                    'user_id' => $request->user_id,
+                    'voutcher_plan_id' => $request->voutcher_plan_id,
+                    'branch_id' => $request->branch_id,
+
+                    'value_in_pounds' => $voucher_plan->value_in_pounds,
+                    'expiration_date' => $expirationDate,
+                    'num_of_point' => $voucher_plan->number_of_points,
+                    'voutcher_plan_name' => $voucher_plan->name,
+                ]);
+
+                $message = 'تم إضافه القسيمة';
+                $statusCode = Response::HTTP_OK;
+
+                return response()->json([
+                    'status' => $statusCode,
+                    'message' => $message,
+                    'user_voucher' => $userVoucher
+                ], 201);
+
             }else{
                 return response()->json(['message' => 'النقاط أكبر من المسموح'], 500);
             }

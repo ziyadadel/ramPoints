@@ -30,6 +30,7 @@ use App\Http\Controllers\ForgetPasswordController;
 Route::post('/user/register', [UserController::class, 'register']);
 Route::post('/admin/login', [UserController::class, 'login']);
 Route::post('/user/login', [UserController::class, 'login']);
+Route::get('/voutcherplan', [VoutcherPlanController::class, 'index']);
 Route::get('/branch', [branchController::class, 'index']);
 
 
